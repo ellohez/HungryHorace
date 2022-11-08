@@ -16,16 +16,15 @@ My first Python application - project submission (see below for brief)
 In this project you'll create a program to search for recipes based on an ingredient. The standard
 project uses the Edamam Recipe API, but can be changed to use a different API after completing
 the required tasks.
+
 You will not need any additional knowledge beyond what is covered in this course to complete this
 project.
 
-**Required Tasks** 
-To use the Edamam API you will need to register for an account. In your Edamam account
-dashboard you can find an Application ID and Application Key, which you will need to make
-requests to the API.
+**Required Tasks**
+
 These are the required tasks for this project. You should aim to complete these tasks before
 adding your own ideas to the project.
-Required Tasks
+
 1. Read the Edamam API documentation ★
 https://developer.edamam.com/edamam-docs-recipe-api
 2. Ask the user to enter an ingredient that they want to search for
@@ -33,6 +32,12 @@ https://developer.edamam.com/edamam-docs-recipe-api
 part of the search query (also included your Application ID and Application Key
 4. Get the returned recipes from the API response
 5. Display the recipes for each search result
+
+To use the Edamam API you will need to register for an account. In your Edamam account
+dashboard you can find an Application ID and Application Key, which you will need to make
+requests to the API.
+
+![Powered by Edamam API](https://developer.edamam.com/images/light.png)
 
 **Ideas for Extending the Project**
 Here are a few ideas for extending the project beyond the required tasks. These ideas are just
