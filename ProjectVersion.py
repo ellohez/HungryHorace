@@ -1,6 +1,7 @@
 # API request library
 import webbrowser
 import requests
+import urllib.request
 # Interface to TK Gui toolkit
 import tkinter
 from tkinter import *
@@ -10,21 +11,21 @@ from tkinter.scrolledtext import ScrolledText
 from typing import Any
 from tktooltip import ToolTip
 from tkinter import messagebox
-# from io import BytesIO
 from PIL import Image, ImageTk
 
+# Global variables
 # Version number as string to display
-version_info = "Version - 1.6"
+VERSION_NUM = "Version - 1.7"
 # This is the application ID and app KEY you should send with each API request.
-app_ID = '3a6ebb3f'
-app_Key = '3c298096d79eb8a9551ece6adff2f8e7'
+APP_ID = '3a6ebb3f'
+APP_KEY = '3c298096d79eb8a9551ece6adff2f8e7'
 current_recipe_num: int = 0
 total_recipes: int = 0
 edmamam_count: int = 0  # Total number of results according to Edamam
 recipe_hits = []
+recipe_img = Image.open("images/Hungry_Horace_icon.jpg")
 
 # List of health options
-
 health_opt_list: list[str | Any] = ["none",
                                     "alcohol-cocktail",
                                     "alcohol-free",
@@ -70,15 +71,15 @@ frm.grid()
 #  This function will need to use 'ingredient' to build the search URL and return the json recipe_hits
 def search_api(ingredient, health_opt):
     # Old API URL - doesn't work with health option but useful for testing
-    # url = "https://api.edamam.com/search?q={0}&app_id={1}&app_key={2}".format(ingredient, app_ID, app_Key)
+    # url = "https://api.edamam.com/search?q={0}&app_id={1}&app_key={2}".format(ingredient, APP_ID, APP_KEY)
     # New API URLs
     # Use simple URL without health option if none chosen
     if health_opt == "none" or health_opt == "":
         url = "https://api.edamam.com/api/recipes/v2?type=public&q={0}&app_id={1}&app_key={2}". \
-           format(ingredient.lower(), app_ID, app_Key)
+           format(ingredient.lower(), APP_ID, APP_KEY)
     else:  # Call API with health option
         url = "https://api.edamam.com/api/recipes/v2?type=public&q={0}&app_id={1}&app_key={2}&health={3}". \
-            format(ingredient.lower(), app_ID, app_Key, health_opt.lower())
+            format(ingredient.lower(), APP_ID, APP_KEY, health_opt.lower())
 
     response = requests.get(url)
     # 200 should be success, 400s for errors
@@ -155,12 +156,19 @@ def change_recipe():
     txt_widget['state'] = 'disabled'
 
     # Upload the recipe image
-    # img_url = str(get_image_url())
-    # img_response = requests.get(img_url)
-    # recipe_img = Image.open(img_response.raw)
-    # recipe_img = recipe_img.resize((200, 200))
-    # new_img = ImageTk.PhotoImage(recipe_img)
-    # image_lbl['image'] = new_img
+    img_url = str(get_image_url())
+    # Try loading image from URL
+    # TODO add try and except here - if URL image fails, set to app icon
+    #  or 404 placeholder image?
+    urllib.request.urlretrieve(img_url, "images/recipe.jpg")
+    # Tkinter PhotoImage only supports GIF, PGM, PPM & PNG
+    # So we open the image file and create a PIL image object
+    new_img = Image.open("images/recipe.jpg")
+    new_img = new_img.resize((200, 200))
+    #  Use PIL image object to create PhotoImage object
+    global recipe_img
+    recipe_img = ImageTk.PhotoImage(new_img)
+    image_lbl.configure(image=recipe_img)
 
 
 def open_url():
@@ -246,7 +254,6 @@ health_opt_lbl.grid(column=0, row=1, pady=3, sticky='w')  # Place label widget i
 n = StringVar()  # TODO - figure out what this is
 health_opt_combo = Combobox(frm, width=30, textvariable=n, state='readonly')
 health_opt_combo.grid(column=1, row=1, pady=0, sticky='w')
-# Todo - check this includes ALL health label options - see Edamam documentation
 # Adding combobox drop down list
 health_opt_combo['values'] = health_opt_list
 health_opt_combo.current(0)
@@ -261,12 +268,14 @@ search_btn.grid(column=0, row=2, columnspan=2, pady=3)
 title_lbl = Label(frm, text="Hungry Horace - Recipe Search", font="Helvetica 12 bold", wraplength=700)
 title_lbl.grid(column=0, row=3, columnspan=4, rowspan=2, sticky='w')  # Place label widget in layout grid
 
+
 # Load application icon into label
-app_icon = Image.open("Hungry_Horace.jpg")
+app_icon = Image.open("images/Hungry_Horace_icon.jpg")
 app_icon = app_icon.resize((200, 200))
-icon_img = ImageTk.PhotoImage(app_icon)
-image_lbl = Label(frm, width=20, relief=tkinter.RIDGE, image=icon_img)
+recipe_img = ImageTk.PhotoImage(app_icon)
+image_lbl = Label(frm, width=20, relief=tkinter.RIDGE, image=recipe_img)
 image_lbl.grid(column=2, row=5, sticky='e')
+
 
 # Large scrolled text window - recipe details
 txt_widget = ScrolledText(master=frm, wrap=tkinter.WORD, width=50, height=15, relief=tkinter.RIDGE)
@@ -277,7 +286,7 @@ txt_widget.insert(END, "\nWhat are you hungry for today?"
                        "\n\n1) Enter an ingredient/keyword to search for \n(e.g. 'cheese'/'curry')"
                        "\n2) Use the menu to add a dietary option to \nfilter recipes by."
                        "\n3) Press 'Search'")
-txt_widget.insert(END, "\n\n\n\n\n{0} Copyright - Janeeta & Helen".format(version_info))
+txt_widget.insert(END, "\n\n\n\n\n{0} Copyright - Janeeta & Helen".format(VERSION_NUM))
 
 # Recipe button to open link
 url_btn = Button(frm, text="Go to recipe", command=open_url)
